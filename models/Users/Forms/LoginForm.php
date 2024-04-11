@@ -1,8 +1,10 @@
 <?php
+
 namespace app\models\Users\Forms;
 
 use app\models\Users\ActiveRecord\User;
 use Yii;
+
 class LoginForm extends \yii\base\Model
 {
     public $username;
@@ -18,6 +20,18 @@ class LoginForm extends \yii\base\Model
             ['password', 'validatePassword'],
         ];
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function attributeLabels()
+    {
+        return [
+            'username' => 'El usuario',
+            'password' => 'La contraseña',
+        ];
+    }
+
     /**
      * Validates the password.
      * This method serves as the inline validation for password.

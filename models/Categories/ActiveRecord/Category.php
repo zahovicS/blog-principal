@@ -9,10 +9,13 @@ use Yii;
  * This is the model class for table "categories".
  *
  * @property int $id
+ * @property int $id_subcategoria
  * @property string $name
  * @property string $created_at
  *
  * @property Post[] $posts
+ * @property Category $parentCategory
+ * @property Category $subCategories
  */
 class Category extends \yii\db\ActiveRecord
 {
@@ -25,30 +28,6 @@ class Category extends \yii\db\ActiveRecord
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function rules()
-    {
-        return [
-            [['name'], 'required'],
-            [['created_at'], 'safe'],
-            [['name'], 'string', 'max' => 100],
-        ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
-    {
-        return [
-            'id' => 'ID',
-            'name' => 'Name',
-            'created_at' => 'Created At',
-        ];
-    }
-
-    /**
      * Gets query for [[Posts]].
      *
      * @return \yii\db\ActiveQuery
@@ -56,5 +35,18 @@ class Category extends \yii\db\ActiveRecord
     public function getPosts()
     {
         return $this->hasMany(Post::class, ['id_category' => 'id']);
+    }
+    /**
+     * Gets query for [[Category]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getParentCategory()
+    {
+        return $this->hasOne(Category::class, ['id' => 'id_parent_category']);
+    }
+    public function getSubCategories()
+    {
+        return $this->hasMany(Category::class, ['id_parent_category' => 'id']);
     }
 }

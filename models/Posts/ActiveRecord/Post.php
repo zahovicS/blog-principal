@@ -36,24 +36,6 @@ class Post extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function rules()
-    {
-        return [
-            [['id_user', 'id_category', 'title', 'slug', 'extract', 'content'], 'required'],
-            [['id_user', 'id_category'], 'integer'],
-            [['content'], 'string'],
-            [['posted_at'], 'safe'],
-            [['header_image', 'title', 'slug'], 'string', 'max' => 255],
-            [['post_image'], 'string', 'max' => 150],
-            [['extract'], 'string', 'max' => 120],
-            [['id_user'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['id_user' => 'id']],
-            [['id_category'], 'exist', 'skipOnError' => true, 'targetClass' => Category::class, 'targetAttribute' => ['id_category' => 'id']],
-        ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function attributeLabels()
     {
         return [

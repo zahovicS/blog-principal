@@ -22,10 +22,10 @@ $config = [
         'user' => [
             'identityClass' => 'app\models\Users\ActiveRecord\User',
             'enableAutoLogin' => true,
-            'loginUrl' => 'admin/auth/login'
+            'loginUrl' => '/admin/auth/index'
         ],
         'errorHandler' => [
-            'errorAction' => 'site/error',
+            'errorAction' => '/site/error',
         ],
         'mailer' => [
             'class' => \yii\symfonymailer\Mailer::class,
@@ -52,7 +52,6 @@ $config = [
     ],
     'params' => $params,
     'language' => 'es-PE',
-    // set source language to be English
     'sourceLanguage' => 'es-PE',
     
 ];
