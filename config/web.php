@@ -19,6 +19,15 @@ $config = [
         'cache' => [
             'class' => 'yii\caching\FileCache',
         ],
+        'security' => [
+            'class' => 'yii\base\Security',
+        ],
+        'encrypter' => [
+            'class' => 'app\components\security\Encrypter',
+        ],
+        'post' => [
+            'class' => 'app\components\html\Post',
+        ],
         'user' => [
             'identityClass' => 'app\models\Users\ActiveRecord\User',
             'enableAutoLogin' => true,
@@ -47,11 +56,17 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                '<folder:\w+>/<controller:\w+>/<action:\w+>' => '<folder>/<controller>/<action>',
+                '<folder:\w+>/<controller:\w+>/<action:\w+>/<id:[\-]?\w+>' => '<folder>/<controller>/<action>',
+                '<controller:\w+>/<action:\w+>' => '<controller>/<action>',
+                '<controller:\w+>/<action:\w+>/<id:\w+>' => '<controller>/<action>',
+                '<controller:\w+>/<action:\w+>/<slug:\d+>' => '<controller>/<action>',
             ],
         ],
     ],
     'params' => $params,
     'language' => 'es-PE',
+    'charset' => 'UTF-8',
     'sourceLanguage' => 'es-PE',
     
 ];

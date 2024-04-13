@@ -71,4 +71,20 @@ class Post extends \yii\db\ActiveRecord
     {
         return $this->hasOne(User::class, ['id' => 'id_user']);
     }
+    /**
+     *
+     * @return string
+     */
+    public function getContent()
+    {
+        return str_replace(["\r\n", "\r", "\n", "\\n"], "<br/>", $this->content);
+    }
+    /**
+     *
+     * @return string
+     */
+    public function getPostedAt($format = "Y-m-d")
+    {
+        return date($format, strtotime($this->posted_at));
+    }
 }
