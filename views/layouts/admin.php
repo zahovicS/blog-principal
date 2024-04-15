@@ -3,6 +3,7 @@
 /** @var yii\web\View $this */
 /** @var string $content */
 
+use app\widgets\Alert;
 use yii\helpers\Html;
 use app\assets\AdminAsset;
 
@@ -36,6 +37,7 @@ AdminAsset::register($this);
     <div class="main-container">
 		<div class="pd-ltr-20 xs-pd-20-10">
             <?php $this->beginBody() ?>
+            <?= Alert::widget() ?>
             <?= $content ?>
             <?php $this->endBody() ?>
 		</div>

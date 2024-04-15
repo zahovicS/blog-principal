@@ -3,9 +3,10 @@
 namespace app\models\Posts\Forms;
 
 use app\models\Posts\ActiveRecord\Post;
-use yii\web\UploadedFile;
 use Exception;
 use Yii;
+use yii\helpers\FileHelper;
+use yii\web\UploadedFile;
 
 class PostForm extends \yii\base\Model
 {
@@ -21,6 +22,10 @@ class PostForm extends \yii\base\Model
      * @var UploadedFile
      */
     public $post_image;
+    /**
+     * @var UploadedFile
+     */
+    public $header_image;
     public $posted_at;
     public $_user = false;
     public $_post = false;
@@ -37,19 +42,29 @@ class PostForm extends \yii\base\Model
         return [
             // the name, email, subject and body attributes are required
             ['id_post', 'validatedPost'],
-            [['title', 'id_user', 'id_category', 'content', 'posted_at'], 'required'],
-            [['post_image'], 'file', 'skipOnEmpty' => false, 'extensions' => 'png, jpg'],
+            [['title', 'id_user', 'id_category', 'content', 'posted_at','extract'], 'required'],
+            [
+                ['post_image'],
+                'image',
+                'skipOnEmpty' => true,
+                'maxSize' => 1600000,
+                'extensions' => ['png', 'jpg', 'gif'],
+                'mimeTypes' => ['image/*'],
+            ],
         ];
     }
     public function attributeLabels()
     {
         return [
             'id_post' => 'El post',
-            'title' => 'El titulo',
-            'id_user' => 'El usuario',
-            'id_category' => 'La categoría',
-            'content' => 'El contenido',
-            'posted_at' => 'La fecha de publicación',
+            'title' => 'El titulo del post',
+            'id_user' => 'El usuario del post',
+            'id_category' => 'La categoría del post',
+            'content' => 'El contenido del post',
+            'extract' => 'El extracto del post',
+            'posted_at' => 'La fecha de publicación del post',
+            'post_image' => 'La miniatura del post',
+            'header_image' => 'La imagen de la cabecera del post',
         ];
     }
     public function getPostID()
@@ -73,19 +88,20 @@ class PostForm extends \yii\base\Model
             if ($post === null) {
                 $post = new Post();
             }
-            // $post->title = $this->title;
-            // $post->id_category = $this->id_category;
-            // $post->id_user = $this->id_user;
-            // $post->title = $this->title;
-            // $post->slug = $this->getSlug();
-            // $post->content = $this->content;
-            // $post->extract = $this->extract;
-            // $post->posted_at = $this->getPostedAt();
-            // $post->save();
+            $post->title = $this->title;
+            $post->id_category = $this->id_category;
+            $post->id_user = $this->id_user;
+            $post->title = $this->title;
+            $post->slug = $this->getSlug();
+            $post->content = $this->content;
+            $post->extract = $this->extract;
+            $post->posted_at = $this->getPostedAt();
+            $post->save();
             $this->uploadHeaderImage($post);
             $this->uploadPostImage($post);
             return true;
         } catch (Exception $exception) {
+            $this->addError('id_post', $exception->getMessage());
             return false;
         }
     }
@@ -117,7 +133,13 @@ class PostForm extends \yii\base\Model
             //in case of a error ignore upload ... XD
         }
     }
-
+    public function getPostImage()
+    {
+        if (empty($this->post_image) || !$this->post_image) {
+            $this->post_image = UploadedFile::getInstance($this, 'post_image');
+        }
+        return $this->post_image;
+    }
     /**
      * Upload miniature  image of a post
      * @var \app\models\Posts\ActiveRecord\Post $post
@@ -126,10 +148,31 @@ class PostForm extends \yii\base\Model
     public function uploadPostImage($post)
     {
         try {
-            var_dump($this->post_image);
-            //code...
+            $post_image = $this->getPostImage();
+            if ($post_image) {
+                $this->removeOldPostImage($post);
+                $uniq_name = uniqid('post_image_');
+                $extension = $post_image->extension;
+                $file_name = $uniq_name . '.' . $extension;
+                $path = 'uploads/posts/' . $post->id;
+                FileHelper::createDirectory($path);
+                $post_image->saveAs($path . '/' . $file_name);
+                $post->post_image = '/' . $path . '/' . $file_name;
+                $post->save();
+            }
         } catch (Exception $exception) {
             //in case of a error ignore upload ... XD
+        }
+    }
+    /**
+     * Remove miniature image of a post edited
+     * @var \app\models\Posts\ActiveRecord\Post $post
+     * @return void
+     */
+    public function removeOldPostImage($post)
+    {
+        if (!empty($post->post_image) && $post->post_image != "/images/posts/placeholder.jpg") {
+            FileHelper::unlink(substr($post->post_image, 1));
         }
     }
 }

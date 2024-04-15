@@ -28,6 +28,9 @@ $config = [
         'post' => [
             'class' => 'app\components\html\Post',
         ],
+        'htmlHelper' => [
+            'class' => 'app\components\html\Helper',
+        ],
         'user' => [
             'identityClass' => 'app\models\Users\ActiveRecord\User',
             'enableAutoLogin' => true,

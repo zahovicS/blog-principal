@@ -6,15 +6,19 @@ use app\models\Categories\ActiveRecord\Category;
 use app\models\Posts\ActiveRecord\Post;
 use app\models\Posts\Forms\PostForm;
 use app\models\Users\ActiveRecord\User;
+use Exception;
 use Yii;
 use yii\filters\AccessControl;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Json;
 use yii\helpers\Url;
+use yii\web\UploadedFile;
 
-class PostController extends \yii\web\Controller {
+class PostController extends \yii\web\Controller
+{
 	public $layout = 'admin';
-	public function behaviors() {
+	public function behaviors()
+	{
 		return [
 			'access' => [
 				'class' => AccessControl::class,
@@ -29,14 +33,17 @@ class PostController extends \yii\web\Controller {
 			],
 		];
 	}
-	public function getViewPath() {
+	public function getViewPath()
+	{
 		return Yii::getAlias('@app/views/admin/post');
 	}
 	// Mostrar dashboard
-	public function actionIndex() {
+	public function actionIndex()
+	{
 		return $this->render('index');
 	}
-	public function actionList() {
+	public function actionList()
+	{
 		$posts = Post::find()->all();
 		$result["data"] = [];
 		foreach ($posts as $key => $post) {
@@ -57,7 +64,8 @@ class PostController extends \yii\web\Controller {
 		}
 		return Json::encode($result);
 	}
-	public function actionEdit($id) {
+	public function actionEdit($id)
+	{
 		$post = Post::findOne(Yii::$app->encrypter->decrypt($id));
 		$model = new PostForm();
 		$usuarios = ArrayHelper::map(User::find()->all(), 'id', 'full_name');
@@ -70,20 +78,25 @@ class PostController extends \yii\web\Controller {
 			"categorias" => $categorias,
 		]);
 	}
-	public function actionUpdate($id) {
-		$model = new PostForm(["mode" => "UPDATE", "id_post" => $id]);
-		$model->load(Yii::$app->request->post());
-		// echo "<pre>";
-		// var_dump($model->getPostedAt());
-		// echo "</pre>";
-		if (!$model->validate()) {
-			var_dump($model->getErrors());
-			echo "error";
-			die;
+	public function actionUpdate($id)
+	{
+		try {
+			$model = new PostForm(["mode" => "UPDATE", "id_post" => $id]);
+			$model->load(Yii::$app->request->post());
+			if (!$model->validate()) {
+				Yii::$app->session->setFlash('error', Yii::$app->htmlHelper->makeList($model->getErrorSummary(true)));
+				return $this->redirect("/admin/post/edit/{$id}");
+			}
+			if (!$model->saveOrUpdate()) {
+				Yii::$app->session->setFlash('error', "Error al actualizar el Post.");
+				Yii::$app->session->setFlash('error', Yii::$app->htmlHelper->makeList($model->getErrorSummary(true)));
+				return $this->redirect("/admin/post/edit/{$id}");
+			}
+			Yii::$app->session->setFlash('success', "Post actualizado correctamente.");
+			return $this->redirect("/admin/post/index");
+		} catch (Exception $exception) {
+			Yii::$app->session->setFlash('error', "Error: {$exception->getMessage()}");
+			return $this->redirect("/admin/post/edit/{$id}");
 		}
-		if (!$model->saveOrUpdate()) {
-			echo "error";
-		}
-		echo "ojk";
 	}
 }
